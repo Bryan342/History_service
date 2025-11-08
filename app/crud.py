@@ -1,26 +1,65 @@
-from app.database import SessionLocal
-from app.models import Transaction
-from app.schemas import TransactionCreate
+from sqlalchemy.orm import Session
+from app.models import Transaction, Wallet, Ledger, AuditLog
+from datetime import datetime
+import uuid
 
-db = SessionLocal()
+def create_transaction(db: Session, tx):
+    wallet = db.query(Wallet).filter(Wallet.wallet_id == tx.sender_wallet).first()
+    if not wallet:
+        raise Exception("Wallet no encontrado")
 
-def create_transaction(tx: TransactionCreate):
-    existing = db.query(Transaction).filter(Transaction.transaction_id == tx.transaction_id).first()
+    user_id = wallet.user_id
+
+    # Verificar idempotencia
+    existing = db.query(Transaction).filter(Transaction.transaction_id == tx.idempotencyKey).first()
     if existing:
-        return {"error": f"El transaction_id '{tx.transaction_id}' ya existe."}
+        return existing
 
-    db_tx = Transaction(**tx.dict())
-    try:
-        db.add(db_tx)
-        db.commit()
-        db.refresh(db_tx)
-        return db_tx
-    except Exception as e:
-        db.rollback()
-        return {"error": f"Error al registrar la transacción: {str(e)}"}
+    # Crear transacción
+    db_transaction = Transaction(
+        transaction_id=tx.idempotencyKey,
+        user_id=user_id,
+        sender_wallet=tx.sender_wallet,
+        receiver_wallet=tx.receiver_wallet,
+        amount=tx.amount,
+        currency=tx.currency,
+        status="completed",
+        timestamp=tx.timestamp
+    )
+    db.add(db_transaction)
 
-def get_all_transactions():
-    return db.query(Transaction).all()
+    # Crear entradas en Ledger
+    entries = [
+        Ledger(
+            ledger_id=str(uuid.uuid4()),
+            transaction_id=tx.idempotencyKey,
+            wallet_id=tx.sender_wallet,
+            amount=-tx.amount,
+            type="debit",
+            timestamp=tx.timestamp
+        ),
+        Ledger(
+            ledger_id=str(uuid.uuid4()),
+            transaction_id=tx.idempotencyKey,
+            wallet_id=tx.receiver_wallet,
+            amount=tx.amount,
+            type="credit",
+            timestamp=tx.timestamp
+        )
+    ]
+    for entry in entries:
+        db.add(entry)
 
-def get_user_transactions(user_id: str):
-    return db.query(Transaction).filter(Transaction.user_id == user_id).all()
+    # Crear entrada en Audit_Log
+    audit = AuditLog(
+        audit_id=str(uuid.uuid4()),
+        user_id=user_id,
+        action="create_transaction",
+        executed_at=datetime.utcnow(),
+        details=f"Transacción {tx.idempotencyKey} registrada"
+    )
+    db.add(audit)
+
+    db.commit()
+    db.refresh(db_transaction)
+    return db_transaction

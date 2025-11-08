@@ -21,6 +21,8 @@ services:
       - "8000:8000"
     depends_on:
       - mariadb-ledger
+    environment:
+      DATABASE_URL: mysql+pymysql://root:tu_password_secreto@mariadb-ledger:3306/transaction_ledger
 
 volumes:
   mariadb_data:
