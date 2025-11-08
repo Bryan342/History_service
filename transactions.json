@@ -1,0 +1,50 @@
+[
+    {
+        "transaction_id": "9dd3df37-7867-45be-9ff9-a6ecc9593fac",
+        "user_id": "u001",
+        "sender_wallet": "wallet_001",
+        "receiver_wallet": "wallet_002",
+        "amount": 120.5,
+        "currency": "PEN",
+        "type": "withdraw",
+        "description": "Pago en tienda",
+        "status": "completed",
+        "timestamp": "2025-11-06T17:40:23.369551"
+    },
+    {
+        "transaction_id": "ccde5925-2ec9-4b70-a003-bbf5e65b3b51",
+        "user_id": "u002",
+        "sender_wallet": "wallet_002",
+        "receiver_wallet": "wallet_003",
+        "amount": 500.0,
+        "currency": "PEN",
+        "type": "withdraw",
+        "description": "Pago en tienda",
+        "status": "completed",
+        "timestamp": "2025-11-07T01:27:34.395820"
+    },
+    {
+        "transaction_id": "5e036515-1a1b-4f0a-ada1-e80695654ac9",
+        "user_id": "u001",
+        "sender_wallet": "wallet_001",
+        "receiver_wallet": "wallet_002",
+        "amount": 120.5,
+        "currency": "PEN",
+        "type": "withdraw",
+        "description": "Pago en tienda",
+        "status": "completed",
+        "timestamp": "2025-11-07T02:14:24.849792"
+    },
+    {
+        "transaction_id": "c7d28fd0-962b-425d-a435-97c1d64c3f19",
+        "user_id": "u006",
+        "sender_wallet": "wallet_001",
+        "receiver_wallet": "wallet_002",
+        "amount": 120.5,
+        "currency": "PEN",
+        "type": "withdraw",
+        "description": "Pago en tienda",
+        "status": "completed",
+        "timestamp": "2025-11-07T02:44:25.318343"
+    }
+]

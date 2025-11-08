@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  mariadb-ledger:
+    image: mariadb:10.11
+    container_name: mariadb_ledger_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: tu_password_secreto
+      MYSQL_DATABASE: transaction_ledger
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  history-service:
+    build: .
+    container_name: history_service
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mariadb-ledger
+
+volumes:
+  mariadb_data:
